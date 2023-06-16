@@ -1,15 +1,15 @@
+FROM golang:1.20
 
+WORKDIR /usr/src/app
 
+# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
 
+COPY . .
+RUN go build -v -o /usr/local/bin/app ./...
 
-
-
-
-
-
-
-
-
+CMD ["app"]
 
 
 
@@ -19,21 +19,19 @@
 
 #FROM golang:latest
 #
-## Set the working directory inside the container
+
 #WORKDIR /app
 #
-## Update the package manager and install necessary dependencies
+
 #RUN apt-get update && apt-get install -y golang openfortivpn g++ gcc curl nano vim
-#
-## Copy the Go source code to the container's working directory
+
+
 #COPY . .
-#
-## Build the Go application
+
 #RUN go build -o myapp
 #
-## Expose the port on which the Go application listens
+
 #EXPOSE 8080
-#
-## Define the command to run the Go application
+
 #CMD ["./myapp"]
 #
