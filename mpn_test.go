@@ -3,9 +3,14 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
+	"dockerGo/db"
+	"dockerGo/helper"
+	"dockerGo/model"
 	"encoding/json"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/redis/go-redis/v9"
 	"io"
 	"log"
 	"mime/multipart"
@@ -15,6 +20,35 @@ import (
 	"strconv"
 	"testing"
 )
+
+func TestRedisGet(t *testing.T) {
+	rd := db.NewRedis()
+	ctx := context.Background()
+
+	rdb := rd.Conn()
+
+	result, err := rdb.Get(ctx, "dana").Result()
+	if err == redis.Nil {
+		fmt.Println("ga ada")
+	} else if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(result)
+	}
+}
+
+func TestRedisInsert(t *testing.T) {
+	rd := db.NewRedis()
+	ctx := context.Background()
+
+	rdb := rd.Conn()
+
+	if err := rdb.Set(ctx, "token_ntpn_single", "PHPSESSID=c1u3s19hln2v79uq7f3r4niib1", 0).Err(); err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("berhasil simpan")
+}
 
 func TestMPN(t *testing.T) {
 
@@ -75,7 +109,7 @@ func TestMPN(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows := make([]NTPN, 0)
+	rows := make([]model.NTPN, 0)
 
 	doc.Find("#examplex > tbody").Each(func(i int, s *goquery.Selection) {
 		//row := new(NTPN)
@@ -83,12 +117,12 @@ func TestMPN(t *testing.T) {
 		//row.Ntpn = s.Find("#examplex > tbody > tr:nth-child(6) > td:nth-child(2)").Text()
 
 		for ii := 1; ii <= 30; ii += 5 {
-			row := new(NTPN)
+			row := new(model.NTPN)
 			str := strconv.Itoa(ii)
 			row.Ntpn = s.Find("#examplex > tbody > tr:nth-child(" + str + ") > td:nth-child(2)").Text()
 			row.KodeBilling = s.Find("#examplex > tbody > tr:nth-child(" + str + ") > td:nth-child(6)").Text()
-			row.Akun = SpaceRemover(s.Find("#examplex > tbody > tr:nth-child(" + str + ") > td:nth-child(8)").Text())
-			row.Nilai = SpaceRemover(s.Find("#examplex > tbody > tr:nth-child(" + str + ") > td:nth-child(10)").Text())
+			row.Akun = helper.SpaceRemover(s.Find("#examplex > tbody > tr:nth-child(" + str + ") > td:nth-child(8)").Text())
+			row.Nilai = helper.SpaceRemover(s.Find("#examplex > tbody > tr:nth-child(" + str + ") > td:nth-child(10)").Text())
 			row.Ket = s.Find("#examplex > tbody > tr:nth-child(" + str + ") > td:nth-child(11)").Text()
 			rows = append(rows, *row)
 		}

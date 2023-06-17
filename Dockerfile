@@ -1,16 +1,15 @@
-FROM golang:1.20
+FROM golang:alpine
 
-WORKDIR /usr/src/app
+RUN apk update && apk add --no-cache git
 
-# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
-COPY go.mod go.sum ./
-RUN go mod download && go mod verify
+WORKDIR /app
 
 COPY . .
-RUN go build -v -o /usr/local/bin/app ./...
 
-CMD ["app"]
+RUN go build -o binary
+EXPOSE 8080
 
+ENTRYPOINT ["/app/binary"]
 
 
 
