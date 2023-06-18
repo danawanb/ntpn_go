@@ -9,6 +9,27 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+func InsertToken(c *fiber.Ctx) error {
+
+	tt := c.FormValue("token")
+
+	rd := db.NewRedis()
+	ctx := context.Background()
+
+	rdb := rd.Conn()
+
+	if err := rdb.Set(ctx, "token_ntpn_bulk", tt, 0).Err(); err != nil {
+		return c.Render("statusinsert", fiber.Map{
+			"status": "Gagal",
+		})
+	}
+
+	return c.Render("statusinsert", fiber.Map{
+		"status": "Berhasil",
+	})
+
+}
+
 func InsertNTPN(c *fiber.Ctx) error {
 	single := c.Query("single")
 	bulk := c.Query("bulk")
