@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func TestRedisGet(t *testing.T) {
@@ -49,7 +50,30 @@ func TestRedisInsert(t *testing.T) {
 
 	fmt.Println("berhasil simpan")
 }
+func TestRedisTime(t *testing.T) {
 
+	rd := db.NewRedis()
+	ctx := context.Background()
+
+	rdb := rd.Conn()
+
+	result, err := rdb.Get(ctx, "token_ntpn_bulk").Result()
+
+	if err == redis.Nil {
+		log.Println(err)
+	} else if err != nil {
+		log.Println(err)
+	} else {
+		timestamp, err := strconv.ParseInt(result, 10, 64)
+		if err != nil {
+			fmt.Println("Gagal mengonversi waktu:", err)
+		} else {
+			goTime := time.Unix(timestamp, 0)
+			fmt.Println("Waktu Redis untuk kunci :", goTime)
+		}
+	}
+
+}
 func TestMPN(t *testing.T) {
 
 	url := "http://10.242.104.66/mpnonline/?page=cGVya3Bwbi5rb25mX2Fka19wYWpha19wZW1kYQ=="

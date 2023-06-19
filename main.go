@@ -4,6 +4,7 @@ import (
 	"dockerGo/handler"
 	"github.com/go-co-op/gocron"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
@@ -34,15 +35,35 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		// Render index - start with views directory
-		return c.Render("inputtoken", fiber.Map{
-			"Title":  "Update Bulk Token",
-			"Status": true,
+		sts := handler.GetTokenUsingGetRequest()
+		log.Println(sts)
+		return c.Render("statustoken", fiber.Map{
+			"Status": sts,
+			//"StatusBulk":   sts,
 		})
 	})
 
 	app.Get("/ntpn/:ntpn", handler.GetNTPN)
 	app.Post("/inserttoken", handler.InsertNTPN)
 	app.Post("/ntpn", handler.BulkNTPN)
+
+	app.Use(basicauth.New(basicauth.Config{
+		Users: map[string]string{
+			"danawanb": "Liebesleid69!",
+			"rain":     "hujan",
+		},
+	}))
+	app.Get("/admin", func(c *fiber.Ctx) error {
+		// Render index - start with views directory
+		sts := handler.GetTokenUsingGetRequest()
+		return c.Render("inputtoken", fiber.Map{
+			"Title":  "Update Bulk Token",
+			"Status": sts,
+		})
+	})
+	app.Get("/hello", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
 	app.Post("/insert", handler.InsertToken)
 
 	app.Use(func(c *fiber.Ctx) error {

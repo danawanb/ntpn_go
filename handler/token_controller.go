@@ -73,3 +73,19 @@ func GetToken(key string) (string, error) {
 		return result, nil
 	}
 }
+
+//func GetTokenTime(key string) (time.Time, error) {
+//	rd := db.NewRedis()
+//	ctx := context.Background()
+//
+//	rdb := rd.Conn()
+//
+//	result, err := rdb.Get(ctx, key).Time()
+//	if err == redis.Nil {
+//		return _, errors.New("key tidak ada")
+//	} else if err != nil {
+//		return "", err
+//	} else {
+//		return result.St, nil
+//	}
+//}
