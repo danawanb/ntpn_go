@@ -9,8 +9,14 @@ import (
 	"dockerGo/model"
 	"encoding/json"
 	"fmt"
+	api2captcha "github.com/2captcha/2captcha-go"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/devices"
+	"github.com/go-rod/rod/lib/launcher"
 	"github.com/redis/go-redis/v9"
+	"image"
+	"image/png"
 	"io"
 	"log"
 	"mime/multipart"
@@ -187,4 +193,127 @@ func TestBaris(t *testing.T) {
 	}
 
 	fmt.Println("Jumlah baris :", lineCount)
+}
+
+type MPNCookie struct {
+	Name  string
+	Value string
+}
+
+func TestGetCookieUsingGolangRod(t *testing.T) {
+	u := launcher.New().
+		Headless(false).
+		MustLaunch()
+
+	page := rod.New().ControlURL(u).MustConnect().MustPage("http://10.242.104.66/mpn").MustWindowFullscreen()
+	page.MustEmulate(devices.Device{
+		Title:          "iPhone 8",
+		Capabilities:   []string{"touch", "mobile"},
+		UserAgent:      "Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_2 like Mac OS X)",
+		AcceptLanguage: "en",
+		Screen: devices.Screen{
+			DevicePixelRatio: 2,
+			Horizontal: devices.ScreenSize{
+				Width:  1920,
+				Height: 1080,
+			},
+		},
+	})
+
+	defer page.Close()
+
+	page.MustWaitStable()
+	page.MustElement("#header > div > nav > ul > a").MustClick()
+	time.Sleep(3 * time.Second)
+
+	page.MustElement("#user").MustInput("kppn155")
+	page.MustElement("#login-password").MustInput("Benteng@155")
+	bin := page.MustElement("#login > div > div.row.mt-2 > div:nth-child(1) > div > form > div:nth-child(5) > div:nth-child(2) > div > img").MustResource()
+
+	ConvertBinary(bin)
+
+	code := CaptchaSolver("./output.png")
+	fmt.Println(code)
+	kode := strconv.Itoa(code)
+	page.MustElement("#login > div > div.row.mt-2 > div:nth-child(1) > div > form > div:nth-child(5) > input").MustInput(kode)
+	time.Sleep(300 * time.Millisecond)
+	page.MustElement("#login > div > div.row.mt-2 > div:nth-child(1) > div > form > div.text-center > button").MustClick()
+	time.Sleep(2300 * time.Millisecond)
+
+	cook := MPNCookie{}
+	cookies := page.MustCookies("http://10.242.104.66/mpnonline/")
+	for _, cookie := range cookies {
+		cook.Name = cookie.Name
+		cook.Value = cookie.Value
+	}
+
+	fmt.Println(cook)
+}
+
+func TestCaptcha(t *testing.T) {
+	client := api2captcha.NewClient("251d4bbc3f50099a8de592680b8d33c2")
+
+	cap := api2captcha.Normal{
+		File: "./output.png",
+	}
+
+	code, err := client.Solve(cap.ToRequest())
+	if err != nil {
+		if err == api2captcha.ErrTimeout {
+			log.Fatal("Timeout")
+		} else if err == api2captcha.ErrApi {
+			log.Fatal("API error")
+		} else if err == api2captcha.ErrNetwork {
+			log.Fatal("Network error")
+		} else {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("code " + code)
+
+}
+
+func CaptchaSolver(path string) int {
+	client := api2captcha.NewClient("251d4bbc3f50099a8de592680b8d33c2")
+
+	cap := api2captcha.Normal{
+		File: path,
+	}
+
+	code, err := client.Solve(cap.ToRequest())
+	if err != nil {
+		if err == api2captcha.ErrTimeout {
+			log.Fatal("Timeout")
+		} else if err == api2captcha.ErrApi {
+			log.Fatal("API error")
+		} else if err == api2captcha.ErrNetwork {
+			log.Fatal("Network error")
+		} else {
+			log.Fatal(err)
+		}
+	}
+	num, err := strconv.Atoi(code)
+	if err != nil {
+		log.Println(err)
+	}
+	return num
+}
+
+func ConvertBinary(binaryData []byte) {
+
+	file, err := os.Create("output.png")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(bytes.NewReader(binaryData))
+	if err != nil {
+		panic(err)
+	}
+
+	err = png.Encode(file, img)
+	if err != nil {
+		panic(err)
+	}
 }
