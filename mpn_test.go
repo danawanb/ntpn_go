@@ -15,8 +15,6 @@ import (
 	"github.com/go-rod/rod/lib/devices"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/redis/go-redis/v9"
-	"image"
-	"image/png"
 	"io"
 	"log"
 	"mime/multipart"
@@ -230,9 +228,9 @@ func TestGetCookieUsingGolangRod(t *testing.T) {
 	page.MustElement("#login-password").MustInput("Benteng@155")
 	bin := page.MustElement("#login > div > div.row.mt-2 > div:nth-child(1) > div > form > div:nth-child(5) > div:nth-child(2) > div > img").MustResource()
 
-	ConvertBinary(bin)
+	helper.ConvertBinary(bin)
 
-	code := CaptchaSolver("./output.png")
+	code := helper.CaptchaSolver("./output.png")
 	fmt.Println(code)
 	kode := strconv.Itoa(code)
 	page.MustElement("#login > div > div.row.mt-2 > div:nth-child(1) > div > form > div:nth-child(5) > input").MustInput(kode)
@@ -271,49 +269,4 @@ func TestCaptcha(t *testing.T) {
 	}
 	fmt.Println("code " + code)
 
-}
-
-func CaptchaSolver(path string) int {
-	client := api2captcha.NewClient("251d4bbc3f50099a8de592680b8d33c2")
-
-	cap := api2captcha.Normal{
-		File: path,
-	}
-
-	code, err := client.Solve(cap.ToRequest())
-	if err != nil {
-		if err == api2captcha.ErrTimeout {
-			log.Fatal("Timeout")
-		} else if err == api2captcha.ErrApi {
-			log.Fatal("API error")
-		} else if err == api2captcha.ErrNetwork {
-			log.Fatal("Network error")
-		} else {
-			log.Fatal(err)
-		}
-	}
-	num, err := strconv.Atoi(code)
-	if err != nil {
-		log.Println(err)
-	}
-	return num
-}
-
-func ConvertBinary(binaryData []byte) {
-
-	file, err := os.Create("output.png")
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	img, _, err := image.Decode(bytes.NewReader(binaryData))
-	if err != nil {
-		panic(err)
-	}
-
-	err = png.Encode(file, img)
-	if err != nil {
-		panic(err)
-	}
 }

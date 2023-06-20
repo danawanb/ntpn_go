@@ -7,3 +7,8 @@ type NTPN struct {
 	Akun        string `json:"akun"`
 	Ket         string `json:"ket"`
 }
+
+type MPNCookie struct {
+	Name  string
+	Value string
+}

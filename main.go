@@ -77,6 +77,11 @@ func main() {
 	if err != nil {
 		log.Println("Error refresh token every 5 minutes")
 	}
+
+	_, err = s.Every(1).Hour().Do(handler.InsertTokenFromMPN)
+	if err != nil {
+		log.Println("Error insert token from MPN")
+	}
 	s.StartAsync()
 
 	log.Fatal(app.Listen(port))

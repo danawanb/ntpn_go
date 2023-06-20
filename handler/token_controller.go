@@ -74,18 +74,21 @@ func GetToken(key string) (string, error) {
 	}
 }
 
-//func GetTokenTime(key string) (time.Time, error) {
-//	rd := db.NewRedis()
-//	ctx := context.Background()
-//
-//	rdb := rd.Conn()
-//
-//	result, err := rdb.Get(ctx, key).Time()
-//	if err == redis.Nil {
-//		return _, errors.New("key tidak ada")
-//	} else if err != nil {
-//		return "", err
-//	} else {
-//		return result.St, nil
-//	}
-//}
+func InsertTokenFromMPN() error {
+
+	rd := db.NewRedis()
+	ctx := context.Background()
+
+	rdb := rd.Conn()
+
+	tt := helper.GetTokenFromMPN()
+	if err := rdb.Set(ctx, "token_ntpn_single", tt, 0).Err(); err != nil {
+		return err
+	}
+
+	if err := rdb.Set(ctx, "token_ntpn_bulk", tt, 0).Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
