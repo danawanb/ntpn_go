@@ -65,23 +65,20 @@ func main() {
 		return c.SendString("Hello, World!")
 	})
 	app.Post("/insert", handler.InsertToken)
-
+	app.Get("/ttoken", handler.InsertTokenFromMPN)
 	app.Use(func(c *fiber.Ctx) error {
 		return c.SendStatus(404)
 	})
 
 	s := gocron.NewScheduler(time.UTC)
 
-	//cron job refresh token
-	_, err := s.Every(5).Minutes().Do(handler.RefreshTokenUsingGetRequest)
+	_, err := s.Every(1).Hour().Do(handler.RefreshTokenUsingGetRequest)
 	if err != nil {
 		log.Println("Error refresh token every 5 minutes")
 	}
 
-	_, err = s.Every(1).Hour().Do(handler.InsertTokenFromMPN)
-	if err != nil {
-		log.Println("Error insert token from MPN")
-	}
+	s.Every(5).Minutes().Do(handler.InsertTokenFromNPNCron)
+
 	s.StartAsync()
 
 	log.Fatal(app.Listen(port))

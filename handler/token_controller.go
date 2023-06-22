@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
+	"log"
 )
 
 func InsertToken(c *fiber.Ctx) error {
@@ -74,7 +75,7 @@ func GetToken(key string) (string, error) {
 	}
 }
 
-func InsertTokenFromMPN() error {
+func InsertTokenFromMPN(c *fiber.Ctx) error {
 
 	rd := db.NewRedis()
 	ctx := context.Background()
@@ -89,6 +90,28 @@ func InsertTokenFromMPN() error {
 	if err := rdb.Set(ctx, "token_ntpn_bulk", tt, 0).Err(); err != nil {
 		return err
 	}
+	log.Println("Berhasil insert token", tt)
+	return helper.SuccessResponse(c, fiber.StatusOK, "Berhasil Update Token")
+}
 
-	return nil
+func InsertTokenFromNPNCron() {
+
+	rd := db.NewRedis()
+	ctx := context.Background()
+
+	rdb := rd.Conn()
+
+	tt := helper.GetTokenFromMPN()
+	if err := rdb.Set(ctx, "token_ntpn_single", tt, 0).Err(); err != nil {
+		log.Println(err)
+		return
+	}
+
+	if err := rdb.Set(ctx, "token_ntpn_bulk", tt, 0).Err(); err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println("Berhasil insert token", tt)
+
 }
