@@ -11,14 +11,14 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-co-op/gocron v1.28.3 // indirect
 	github.com/go-rod/rod v0.113.3 // indirect
-	github.com/gofiber/fiber/v2 v2.46.0 // indirect
+	github.com/gofiber/fiber/v2 v2.47.0 // indirect
 	github.com/gofiber/template v1.8.2 // indirect
 	github.com/gofiber/template/html/v2 v2.0.4 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.18 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/redis/go-redis/v9 v9.0.5 // indirect
@@ -37,5 +37,5 @@ require (
 	github.com/ysmood/leakless v0.8.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
 )

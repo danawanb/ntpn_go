@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
 	"log"
 	"time"
@@ -21,6 +22,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
+
 	app.Use(logger.New())
 
 	app.Use(limiter.New(limiter.Config{
@@ -32,7 +34,7 @@ func main() {
 	//app.Get("/", func(c *fiber.Ctx) error {
 	//	return c.SendString(" たからもの")
 	//})
-
+	app.Use(recover.New())
 	app.Get("/", func(c *fiber.Ctx) error {
 		// Render index - start with views directory
 		sts := handler.GetTokenUsingGetRequest()
@@ -77,8 +79,11 @@ func main() {
 		log.Println("Error refresh token every 5 minutes")
 	}
 
-	s.Every(5).Minutes().Do(handler.InsertTokenFromNPNCron)
+	_, err = s.Every(5).Minutes().Do(handler.InsertTokenFromNPNCron)
 
+	if err != nil {
+		log.Println("Error refresh token every 5 minutes")
+	}
 	s.StartAsync()
 
 	log.Fatal(app.Listen(port))
