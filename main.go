@@ -79,10 +79,10 @@ func main() {
 		log.Println("Error refresh token every 5 minutes")
 	}
 
-	_, err = s.Every(5).Minutes().Do(handler.InsertTokenFromNPNCron)
+	_, err = s.Every(1).Day().At("10:30").Do(handler.InsertTokenFromNPNCron)
 
 	if err != nil {
-		log.Println("Error refresh token every 5 minutes")
+		log.Println("Error Insert Token From MPN")
 	}
 	s.StartAsync()
 
