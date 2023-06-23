@@ -79,11 +79,16 @@ func main() {
 		log.Println("Error refresh token every 5 minutes")
 	}
 
-	_, err = s.Every(1).Day().At("10:30").Do(handler.InsertTokenFromNPNCron)
+	_, err = s.Every(1).Day().Do(handler.InsertTokenFromNPNCron)
 
 	if err != nil {
 		log.Println("Error Insert Token From MPN")
 	}
+	//_, err = s.Every(1).Day().At("10:30").Do(handler.InsertTokenFromNPNCron)
+	//
+	//if err != nil {
+	//	log.Println("Error Insert Token From MPN")
+	//}
 	s.StartAsync()
 
 	log.Fatal(app.Listen(port))

@@ -14,7 +14,13 @@ import (
 func GetTokenFromMPN() string {
 	path, _ := launcher.LookPath()
 
-	u := launcher.New().Bin(path).MustLaunch()
+	u := launcher.New().Bin(path).Set("disable-web-security").
+		Set("disable-setuid-sandbox").
+		Set("no-sandbox").
+		Set("no-first-run", "true").
+		Set("disable-gpu").
+		MustLaunch()
+
 	page := rod.New().ControlURL(u).MustConnect().MustPage("http://10.242.104.66/mpn")
 	//u := launcher.New().Set("disable-web-security").
 	//	Set("disable-setuid-sandbox").
@@ -38,7 +44,12 @@ func GetTokenFromMPN() string {
 		},
 	})
 
-	defer page.Close()
+	defer func(page *rod.Page) {
+		err := page.Close()
+		if err != nil {
+			log.Println("tidak bisa close rod chrome karena ", err)
+		}
+	}(page)
 
 	time.Sleep(2 * time.Second)
 	page.MustElement("#header > div > nav > ul > a").MustClick()
