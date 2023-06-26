@@ -72,7 +72,7 @@ func main() {
 		return c.SendStatus(404)
 	})
 
-	s := gocron.NewScheduler(time.UTC)
+	s := gocron.NewScheduler(time.Local)
 
 	_, err := s.Every(1).Hour().Do(handler.RefreshTokenUsingGetRequest)
 	if err != nil {
